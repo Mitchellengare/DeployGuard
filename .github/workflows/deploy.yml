@@ -1,0 +1,40 @@
+name: Deploy
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  id-token: write   # OIDC to AWS, no long-lived keys
+  contents: read
+
+env:
+  AWS_REGION: us-east-1
+  SERVICE: deployguard-api
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_DEPLOY_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+      - id: ecr
+        uses: aws-actions/amazon-ecr-login@v2
+      - name: Build and push image
+        env:
+          IMAGE: ${{ steps.ecr.outputs.registry }}/deployguard-api:${{ github.sha }}
+        run: |
+          docker build -t "$IMAGE" ./backend
+          docker push "$IMAGE"
+      - name: Roll out to ECS
+        run: aws ecs update-service --cluster deployguard --service $SERVICE --force-new-deployment
+      - name: Record deployment in DeployGuard
+        # This feeds the correlation engine: incidents get matched to this deploy.
+        run: |
+          FILES=$(git diff --name-only HEAD~1 HEAD 2>/dev/null | jq -R . | jq -sc . || echo '[]')
+          curl -fsS -X POST "${{ secrets.DEPLOYGUARD_URL }}/api/deployments" \
+            -H 'content-type: application/json' \
+            -d "{\"service\":\"$SERVICE\",\"version\":\"${GITHUB_REF_NAME}\",\"commit_sha\":\"${GITHUB_SHA}\",\"author\":\"${GITHUB_ACTOR}\",\"changed_files\":${FILES:-[]}}"

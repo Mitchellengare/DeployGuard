@@ -1,0 +1,14 @@
+# Local dev: print traces. In AWS, swap the exporter for awsxray / awsemf (use the ADOT collector image).
+receivers:
+  otlp:
+    protocols:
+      http:
+        endpoint: 0.0.0.0:4318
+exporters:
+  debug:
+    verbosity: basic
+service:
+  pipelines:
+    traces:
+      receivers: [otlp]
+      exporters: [debug]

@@ -1,0 +1,25 @@
+services:
+  api:
+    build: ./backend
+    environment:
+      DG_DATABASE_URL: sqlite:////data/deployguard.db
+      DG_OTEL_ENABLED: "true"
+      DG_OTEL_ENDPOINT: http://otel-collector:4318
+      DG_CLOUDWATCH_ENABLED: ${DG_CLOUDWATCH_ENABLED:-false}
+      DG_ANTHROPIC_API_KEY: ${DG_ANTHROPIC_API_KEY:-}
+      AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID:-}
+      AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY:-}
+      AWS_DEFAULT_REGION: ${AWS_DEFAULT_REGION:-us-east-1}
+    volumes: ["data:/data"]
+    ports: ["8000:8000"]
+  web:
+    build: ./frontend
+    ports: ["8080:80"]
+    depends_on: [api]
+  otel-collector:
+    image: otel/opentelemetry-collector:0.116.0
+    command: ["--config=/etc/otel.yaml"]
+    volumes: ["./otel-collector.yaml:/etc/otel.yaml:ro"]
+    ports: ["4318:4318"]
+volumes:
+  data:

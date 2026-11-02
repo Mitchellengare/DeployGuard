@@ -1,0 +1,15 @@
+body { margin: 0; font-family: system-ui, sans-serif; background: #0f1419; color: #e6e9ee; }
+main { max-width: 1200px; margin: 0 auto; padding: 24px; }
+header { display: flex; align-items: baseline; gap: 16px; }
+.grid { display: grid; grid-template-columns: 2fr 1fr; gap: 24px; }
+@media (max-width: 800px) { .grid { grid-template-columns: 1fr; } }
+.card, .mini { background: #1a2129; border-radius: 8px; padding: 14px; margin-bottom: 12px; border-left: 4px solid #3b82f6; }
+.card.open { border-color: #ef4444; } .card.resolved { border-color: #22c55e; opacity: .7; }
+.mini.err { border-color: #f59e0b; font-size: 13px; }
+.row { display: flex; justify-content: space-between; align-items: center; }
+.badge { padding: 2px 8px; border-radius: 99px; font-size: 12px; background: #333; }
+.badge.open { background: #7f1d1d; } .badge.resolved { background: #14532d; }
+.suspect { background: #222c36; padding: 8px 12px; border-radius: 6px; margin: 6px 0; }
+.score { float: right; color: #f59e0b; }
+.muted { color: #8b95a1; } code { background: #0f1419; padding: 1px 5px; border-radius: 4px; }
+button { background: #3b82f6; color: #fff; border: 0; padding: 6px 14px; border-radius: 6px; cursor: pointer; }
