@@ -1,7 +1,7 @@
 name: Deploy
+# Manual only until AWS is set up (needs AWS_DEPLOY_ROLE_ARN + DEPLOYGUARD_URL secrets,
+# an ECR repo and an ECS cluster/service). Re-add `push: branches: [main]` once ready.
 on:
-  push:
-    branches: [main]
   workflow_dispatch:
 
 permissions:
